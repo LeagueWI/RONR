@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Robert's Rules Resource Library</title>
+<!-- LWM Resource Library: Robert's Rules of Order
+     Zip this index.html together with the seven MP4 files (all at the top level, no folders)
+     and upload the ZIP to a Rise Code block. -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Overpass:wght@400;600;700&display=swap" rel="stylesheet">
+
+<style>
+  body { margin: 0; background: #fff; }
+  .lwm-lib, .lwm-lib * { box-sizing: border-box; }
+  .lwm-lib {
+    --navy: #001E62; --navy-700: #0A2C7A; --navy-50: #F2F4F9; --navy-100: #E3E8F2;
+    --gold: #FFB838; --gold-700: #C98A00;
+    --stone-200: #DDDAD2; --stone-300: #C4C0B6; --stone-500: #8A867C; --stone-50: #F7F6F3;
+    font-family: 'Overpass', 'Helvetica Neue', Arial, sans-serif;
+    color: #22211F; background: #fff;
+    border: 1px solid var(--stone-200); border-radius: 2px;
+    box-shadow: 0 1px 2px rgba(0,30,98,.08);
+    max-width: 1100px; margin: 0 auto; overflow: hidden;
+  }
+  .lwm-lib__header {
+    background: var(--navy); color: #fff;
+    padding: 14px 22px; border-bottom: 4px solid var(--gold);
+    font-weight: 700; font-size: 12px; letter-spacing: .14em; text-transform: uppercase;
+  }
+  .lwm-lib__body {
+    display: grid; grid-template-columns: 290px minmax(0, 1fr); min-height: 460px;
+  }
+  .lwm-lib__menu { border-right: 1px solid var(--stone-200); padding: 12px 0; }
+  .lwm-lib__label {
+    padding: 6px 18px 12px; font-weight: 700; font-size: 11px;
+    letter-spacing: .14em; text-transform: uppercase; color: var(--stone-500);
+  }
+  .lwm-lib__list { list-style: none; margin: 0; padding: 0; }
+  .lwm-lib__item {
+    display: flex; gap: 12px; align-items: baseline; width: 100%;
+    padding: 12px 18px; border: 0; border-left: 4px solid transparent;
+    background: #fff; cursor: pointer; text-align: left;
+    font-family: inherit; font-weight: 600; font-size: 15px; line-height: 1.3; color: var(--navy);
+    transition: background-color 150ms cubic-bezier(.2,0,0,1), border-color 150ms cubic-bezier(.2,0,0,1);
+  }
+  .lwm-lib__num { flex: none; width: 20px; font-size: 12px; font-weight: 700; color: var(--stone-500); }
+  .lwm-lib__item:hover { background: var(--navy-50); }
+  .lwm-lib__item[aria-current="true"] { background: var(--navy-100); border-left-color: var(--gold); }
+  .lwm-lib__item:focus-visible { outline: 3px solid var(--gold); outline-offset: -3px; }
+
+  .lwm-lib__stage { padding: 22px; display: flex; flex-direction: column; }
+  .lwm-lib__empty {
+    flex: 1; min-height: 300px; display: grid; place-items: center; text-align: center;
+    border: 1px dashed var(--stone-300); background: var(--stone-50);
+    font-size: 15px; color: var(--stone-500); padding: 24px;
+  }
+  .lwm-lib__player { display: none; flex-direction: column; gap: 14px; }
+  .lwm-lib__player.is-open { display: flex; }
+  .lwm-lib__video {
+    width: 100%; aspect-ratio: 16 / 9; display: block; background: #000;
+    border-top: 4px solid var(--gold);
+  }
+  .lwm-lib__title { margin: 0; font-weight: 700; font-size: 22px; line-height: 1.25; color: var(--navy); }
+
+  @media (max-width: 720px) {
+    .lwm-lib__body { grid-template-columns: 1fr; }
+    .lwm-lib__menu { border-right: 0; border-bottom: 1px solid var(--stone-200); }
+    .lwm-lib__stage { padding: 16px; }
+    .lwm-lib__empty { min-height: 160px; }
+    .lwm-lib__title { font-size: 19px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="lwm-lib" id="lwmLib">
+  <div class="lwm-lib__header">Resource Library &middot; Robert's Rules of Order</div>
+  <div class="lwm-lib__body">
+    <nav class="lwm-lib__menu" aria-label="Video list">
+      <div class="lwm-lib__label" id="lwmCount">Videos</div>
+      <ul class="lwm-lib__list" id="lwmList"></ul>
+    </nav>
+    <div class="lwm-lib__stage">
+      <div class="lwm-lib__empty" id="lwmEmpty">Select a video from the menu</div>
+      <div class="lwm-lib__player" id="lwmPlayer" aria-live="polite">
+        <video class="lwm-lib__video" id="lwmVideo" controls playsinline preload="none"></video>
+        <h2 class="lwm-lib__title" id="lwmTitle"></h2>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  // Videos load from the same ZIP as this page, so no web address is needed.
+  var BASE = "";
+
+  // To add a video: add the MP4 to the ZIP, then add a line below.
+  // "file" must match the MP4 file name exactly, including capitalization.
+  var VIDEOS = [
+    { title: "Amending by Striking Out and Inserting Words", file: "Amending by Striking Out and Inserting Words.mp4" },
+    { title: "Democracy Is Appealing",                       file: "Democracy is Appealing.mp4" },
+    { title: "Handling Inconvenient Motions",                file: "Handling Inconvenient Motions.mp4" },
+    { title: "Lay Off Tabling",                              file: "Lay Off Tabling.mp4" },
+    { title: "Robert's Rules for Remote Meetings",           file: "Robert's Rules for Remote Meetings.mp4" },
+    { title: "Robert's Rules of Civility",                   file: "Roberts Rules of Civility.mp4" },
+    { title: "When Are Repeat Motions Allowed?",             file: "When are Repeat Motions Allowed.mp4" }
+  ];
+
+  function urlFor(file) {
+    // Encodes spaces and apostrophes so every file name resolves correctly.
+    return BASE + encodeURIComponent(file).replace(/'/g, "%27");
+  }
+
+  var list = document.getElementById("lwmList");
+  var empty = document.getElementById("lwmEmpty");
+  var player = document.getElementById("lwmPlayer");
+  var video = document.getElementById("lwmVideo");
+  var titleEl = document.getElementById("lwmTitle");
+  var buttons = [];
+
+  document.getElementById("lwmCount").textContent = "Videos (" + VIDEOS.length + ")";
+
+  VIDEOS.forEach(function (v, i) {
+    var li = document.createElement("li");
+    var btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "lwm-lib__item";
+    btn.setAttribute("aria-current", "false");
+
+    var num = document.createElement("span");
+    num.className = "lwm-lib__num";
+    num.textContent = String(i + 1).padStart(2, "0");
+
+    var label = document.createElement("span");
+    label.textContent = v.title;
+
+    btn.appendChild(num);
+    btn.appendChild(label);
+    btn.addEventListener("click", function () { select(i); });
+    li.appendChild(btn);
+    list.appendChild(li);
+    buttons.push(btn);
+  });
+
+  function select(i) {
+    var v = VIDEOS[i];
+    buttons.forEach(function (b, k) { b.setAttribute("aria-current", k === i ? "true" : "false"); });
+
+    video.pause();
+    video.src = urlFor(v.file);
+    video.setAttribute("aria-label", v.title);
+    video.load();
+    titleEl.textContent = v.title;
+
+    empty.style.display = "none";
+    player.classList.add("is-open");
+
+    var p = video.play();
+    if (p && p.catch) { p.catch(function () { /* Autoplay blocked; learner presses play. */ }); }
+
+    if (window.matchMedia("(max-width: 720px)").matches) {
+      player.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  }
+})();
+</script>
+</body>
+</html>
